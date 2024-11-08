@@ -13,4 +13,4 @@ class CodeDownloaderFilter(Filter):
             if not re.search(r'\d', option.text):
                 date.append(option.text)
 
-        return date[:5]
+        return date
