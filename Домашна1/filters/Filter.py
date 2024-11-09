@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 import os
 from datetime import datetime
 import re
+import openpyxl
 
 def transform_string_to_date(stringce):
     date_format = "%d.%m.%Y"
