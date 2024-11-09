@@ -1,4 +1,4 @@
-from Домашна1.filters.Filter import *
+from filters.Filter import *
 
 class DataCompletenessFilter(Filter):
     def process(self, dates):
