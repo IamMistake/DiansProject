@@ -19,13 +19,9 @@ class SaveDataFilter(Filter):
 
         all_dates = {}
         with concurrent.futures.ThreadPoolExecutor(max_workers=num_threads) as executor:
-            # Submit each data chunk to a separate thread
-            futures = [executor.submit(self.process_companies_subset, chunk) for chunk in data_chunks]
-
-            # Collect results as they complete
-            for future in concurrent.futures.as_completed(futures):
-                all_dates.update(future.result())
-                # print(all_dates)
+            tmp = list(executor.map(self.process_companies_subset, data_chunks))
+            for result in tmp:
+                all_dates.update(result)
 
         return all_dates
 
