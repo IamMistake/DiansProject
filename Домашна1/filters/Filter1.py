@@ -1,4 +1,4 @@
-from Домашна1.filters.Filter import *
+from filters.Filter import *
 
 class CodeDownloaderFilter(Filter):
     def process(self, date):
