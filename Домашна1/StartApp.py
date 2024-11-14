@@ -1,5 +1,5 @@
-from filters.Filter1 import *
-from pipelines.PipeLine import *
+from Домашна1.filters.Filter1 import *
+from Домашна1.pipelines.PipeLine import *
 
 if __name__ == '__main__':
 
