@@ -4,7 +4,7 @@ import os.path
 from Домашна1.filters.Filter import *
 
 cpu_cores = os.cpu_count()
-num_threads = cpu_cores * 2
+num_threads = 4
 
 class SaveDataFilter(Filter):
     def process(self, data):
