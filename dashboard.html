@@ -186,7 +186,7 @@
     let lineChartInstance;
 
     function fetchDashboardData(urlParams) {
-        fetch(`https://diansproject.redmoss-fac8ac07.australiaeast.azurecontainerapps.io/api/stocks/dashboard/stats?${urlParams}`)
+        fetch(`https://dasproject.orangestone-07376614.australiaeast.azurecontainerapps.io/api/stocks/dashboard/stats?${urlParams}`)
             .then(response => response.json())
             .then(data => {
                 const stats = data.data;
@@ -206,7 +206,7 @@
         let ul = document.getElementById("newsList");
         ul.innerHTML = ""
 
-        fetch(`https://diansproject.redmoss-fac8ac07.australiaeast.azurecontainerapps.io/api/stocks/dashboard/news?${urlParams}`)
+        fetch(`https://dasproject.orangestone-07376614.australiaeast.azurecontainerapps.io/api/stocks/dashboard/news?${urlParams}`)
             .then(response => response.json())
             .then(data => {
                 const newsList = document.getElementById('newsList');
@@ -228,7 +228,7 @@
     }
 
     function fetchLineChart(urlParams) {
-        fetch(`https://diansproject.redmoss-fac8ac07.australiaeast.azurecontainerapps.io/api/stocks/dashboard/lineChart?${urlParams}`)
+        fetch(`https://dasproject.orangestone-07376614.australiaeast.azurecontainerapps.io/api/stocks/dashboard/lineChart?${urlParams}`)
             .then(response => response.json())
             .then(data => {
                 const reversedDates = data.dates.reverse();
@@ -285,7 +285,7 @@
     }
 
     function fetchStatisticsData(urlParams) {
-        fetch(`https://diansproject.redmoss-fac8ac07.australiaeast.azurecontainerapps.io/api/stocks/dashboard/statistics?${urlParams}`)
+        fetch(`https://dasproject.orangestone-07376614.australiaeast.azurecontainerapps.io/api/stocks/dashboard/statistics?${urlParams}`)
             .then(response => response.json())
             .then(data => {
                 const statisticsDiv = document.getElementById('statistics');
@@ -331,7 +331,7 @@
     function loadPage() {
         if (isFirst) {
             isFirst = false
-            fetch('https://diansproject.redmoss-fac8ac07.australiaeast.azurecontainerapps.io/api/stocks/companies')
+            fetch('https://dasproject.orangestone-07376614.australiaeast.azurecontainerapps.io/api/stocks/companies')
                 .then(response => response.json())
                 .then(data => {
                     const companies = data;
