@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitcoin Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #1e1e1e;
+            color: #ffffff;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 3fr;
+            height: 100vh;
+        }
+
+        .sidebar {
+            background-color: #d8a15c;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            color: #000;
+        }
+
+        .sidebar select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+        }
+
+        .sidebar button {
+            padding: 10px;
+            background-color: #5e3e19;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .content {
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .header {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+        }
+
+        .header div {
+            background-color: #d8a15c;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px;
+        }
+
+        .charts {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            height: 100%;
+        }
+
+        .chart {
+            background-color: #2b2b2b;
+            border-radius: 5px;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .header span {
+            color: black;
+            font-weight: bold;
+        }
+
+        .statistics {
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+
+        .statistics h3 {
+            color: #d8a15c;
+            margin-bottom: 10px;
+        }
+
+        .statistics ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .statistics ul li {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="sidebar">
+        <h2>UpTrendy</h2>
+            <label for="fromYear">From Year</label>
+            <select name="fromYear" id="fromYear">
+                <option selected value="2014">2014</option>
+                <option value="2015">2015</option>
+                <option value="2016">2016</option>
+                <option value="2017">2017</option>
+                <option value="2018">2018</option>
+                <option value="2019">2019</option>
+                <option value="2020">2020</option>
+                <option value="2021">2021</option>
+                <option value="2022">2022</option>
+                <option value="2023">2023</option>
+            </select>
+
+            <label for="toYear">To Year</label>
+            <select name="toYear" id="toYear">
+                <option value="2015">2015</option>
+                <option value="2016">2016</option>
+                <option value="2017">2017</option>
+                <option value="2018">2018</option>
+                <option value="2019">2019</option>
+                <option value="2020">2020</option>
+                <option value="2021">2021</option>
+                <option value="2022">2022</option>
+                <option value="2023">2023</option>
+                <option selected value="2024">2024</option>
+            </select>
+
+            <label for="company">Company</label>
+            <select name="companySelected" id="company">
+                <option selected value="ALK">ALK</option>
+            </select>
+
+            <button onclick="reloadData()">Add Filter</button>
+
+        <div class="news-section">
+            <h3>Latest News</h3>
+            <ul id="newsList"></ul>
+            <h1 id="loadingNews">Loading news...</h1>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="header">
+            <div>Min<br><span id="minValue">value</span></div>
+            <div>Max<br><span id="maxValue">value</span></div>
+            <div>Last Transaction Price<br><span id="lastPrice">value</span></div>
+            <div>Average<br><span id="average">value</span></div>
+            <div>Quantity Show<br><span id="quantity">value</span></div>
+        </div>
+
+        <div class="charts">
+            <canvas class="chart" id="lineChart"></canvas>
+            <div class="chart" id="statistics">
+                <div class="statistics">
+                    <h3>Осцилатори и Подвижни просеци (MA)</h3>
+                    <p>Осцилатори и Подвижни просеци се технички индикатори што се користат за анализа на историските цени и обем на тргување, цел да се предвидат и други на ново и да се донесат купување или продавање акции.</p>
+                    <ul>
+                        <li>Изберете 10 најдобри технички индикатори (Осцилатори и МА).</li>
+                        <li>Пресметајте ги нивните вредности во 3 временски рамки (1 ден, 1 недела, 1 месец).</li>
+                        <li>Генерирајте сигнали (купи, продај, задржи).</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let isFirst = true
+    let lineChartInstance;
+
+    function fetchDashboardData(urlParams) {
+        fetch(`http://localhost:8082/api/stocks/dashboard/stats?${urlParams}`)
+            .then(response => response.json())
+            .then(data => {
+                const stats = data.data;
+                document.getElementById('minValue').textContent = stats.low;
+                document.getElementById('maxValue').textContent = stats.high;
+                document.getElementById('lastPrice').textContent = stats.closePrice;
+                document.getElementById('average').textContent = stats.avgPrice;
+                document.getElementById('quantity').textContent = stats.volume;
+            })
+            .catch(error => console.error('Error fetching stats:', error));
+    }
+
+    function fetchNews(urlParams) {
+        let loading = document.getElementById("loadingNews");
+        loading.style.display = "block"
+
+        let ul = document.getElementById("newsList");
+        ul.innerHTML = ""
+
+        fetch(`http://localhost:8081/api/stocks/dashboard/news?${urlParams}`)
+            .then(response => response.json())
+            .then(data => {
+                const newsList = document.getElementById('newsList');
+                newsList.innerHTML = '';
+                for (const [headline, sentiment] of Object.entries(data)) {
+                    const newsItem = document.createElement('li');
+                    newsItem.textContent = `${headline}\n(${sentiment})`;
+                    newsList.appendChild(newsItem);
+                }
+                let loading = document.getElementById("loadingNews");
+                loading.style.display = "none"
+            })
+            .catch(error => {
+                console.error('Error fetching news:', error)
+                const newsItem = document.createElement('li');
+                newsItem.textContent = `No news for this Company`;
+                newsList.appendChild(newsItem);
+            });
+    }
+
+    function fetchLineChart(urlParams) {
+        fetch(`http://localhost:8082/api/stocks/dashboard/lineChart?${urlParams}`)
+            .then(response => response.json())
+            .then(data => {
+                const reversedDates = data.dates.reverse();
+                const reversedPrices = data.prices.reverse();
+                const reversedSMA = data.sma.reverse();
+                const reversedSignals = data.signals.reverse();
+
+                if (lineChartInstance) {
+                    lineChartInstance.destroy();
+                }
+
+                const canvas = document.getElementById('lineChart');
+                canvas.style.height = "86vh";
+                canvas.style.width = "50vw";
+                const ctx = canvas.getContext('2d');
+
+                lineChartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: reversedDates,
+                        datasets: [
+                            {
+                                label: 'Stock Prices',
+                                data: reversedPrices,
+                                borderColor: 'blue',
+                                fill: false,
+                                tension: 0.1
+                            },
+                            {
+                                label: 'SMA (10)',
+                                data: reversedSMA,
+                                borderColor: 'orange',
+                                fill: false,
+                                tension: 0.1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: false,
+                        plugins: {
+                            annotation: {
+                                annotations: reversedSignals.map((signal, index) => ({
+                                    type: 'point',
+                                    xValue: reversedDates[index],
+                                    yValue: reversedPrices[index],
+                                    backgroundColor: signal === 'Buy' ? 'green' : (signal === 'Sell' ? 'red' : 'yellow')
+                                }))
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(error => console.error('Error fetching chart data:', error));
+    }
+
+    function fetchStatisticsData(urlParams) {
+        fetch(`http://localhost:8082/api/stocks/dashboard/statistics?${urlParams}`)
+            .then(response => response.json())
+            .then(data => {
+                const statisticsDiv = document.getElementById('statistics');
+
+                // Extract data
+                const sma = data.sma;
+                const oscillators = data.oscillators;
+                const signals = data.signals;
+
+                // Generate HTML content
+                const statsHtml = `
+            <h3>Oscillators and Moving Averages</h3>
+            <p>Technical indicators used to analyze historical prices and predict trends.</p>
+            <h4>Top 5 Moving Averages</h4>
+            <ul>
+                <li>SMA (10): ${sma.sma10[sma.sma10.length - 1]}</li>
+                <li>SMA (20): ${sma.sma20[sma.sma20.length - 1]}</li>
+                <li>EMA (10): ${sma.ema10[sma.ema10.length - 1]}</li>
+                <li>EMA (20): ${sma.ema20[sma.ema20.length - 1]}</li>
+                <li>WMA: ${sma.wma[sma.wma.length - 1]}</li>
+            </ul>
+            <h4>Top 5 Oscillators</h4>
+            <ul>
+                <li>RSI (14): ${oscillators.rsi[oscillators.rsi.length - 1]}</li>
+                <li>Stochastic: ${oscillators.stochastic[oscillators.stochastic.length - 1]}</li>
+                <li>MACD: ${oscillators.macd[oscillators.macd.length - 1]}</li>
+                <li>ADX: ${oscillators.adx[oscillators.adx.length - 1]}</li>
+                <li>CCI: ${oscillators.cci[oscillators.cci.length - 1]}</li>
+            </ul>
+            <h4>Signals</h4>
+            <p>Last Signal: ${signals[signals.length - 1]}</p>
+        `;
+
+                // Update the statistics div
+                statisticsDiv.innerHTML = statsHtml;
+            })
+            .catch(error => {
+                console.error('Error fetching technical indicators:', error);
+                document.getElementById('statistics').textContent = 'Error loading statistics.';
+            });
+    }
+
+    function loadPage() {
+        if (isFirst) {
+            isFirst = false
+            fetch('http://localhost:8081/api/stocks/companies')
+                .then(response => response.json())
+                .then(data => {
+                    const companies = data;
+                    const companySelect = document.getElementById('company');
+                    companies.forEach(company => {
+                        if (company !== "ALK") {
+                            const option = document.createElement('option');
+                            option.value = company;
+                            option.textContent = company;
+                            companySelect.appendChild(option);
+                        }
+                    });
+                })
+                .catch(error => console.error('Error fetching companies:', error));
+
+            fetchDashboardData()
+            fetchLineChart()
+            fetchStatisticsData()
+            fetchNews()
+        }
+    }
+
+    function reloadData() {
+        const fromYear = document.getElementById('fromYear').value;
+        const toYear = document.getElementById('toYear').value;
+        const companySelected = document.getElementById('company').value;
+
+        const urlParams = new URLSearchParams({fromYear, toYear, companySelected});
+
+        fetchDashboardData(urlParams);
+        fetchLineChart(urlParams);
+        fetchStatisticsData(urlParams);
+        fetchNews(urlParams);
+    }
+
+    // document.addEventListener('DOMContentLoaded', () => {
+    //     fetchDashboardData();
+    //     fetchLineChart();
+    // });
+
+    loadPage()
+</script>
+</body>
+</html>
