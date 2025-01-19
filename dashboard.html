@@ -186,7 +186,7 @@
     let lineChartInstance;
 
     function fetchDashboardData(urlParams) {
-        fetch(`http://localhost:8082/api/stocks/dashboard/stats?${urlParams}`)
+        fetch(`https://diansproject.redmoss-fac8ac07.australiaeast.azurecontainerapps.io/api/stocks/dashboard/stats?${urlParams}`)
             .then(response => response.json())
             .then(data => {
                 const stats = data.data;
@@ -206,7 +206,7 @@
         let ul = document.getElementById("newsList");
         ul.innerHTML = ""
 
-        fetch(`http://localhost:8081/api/stocks/dashboard/news?${urlParams}`)
+        fetch(`https://diansproject.redmoss-fac8ac07.australiaeast.azurecontainerapps.io/api/stocks/dashboard/news?${urlParams}`)
             .then(response => response.json())
             .then(data => {
                 const newsList = document.getElementById('newsList');
@@ -228,7 +228,7 @@
     }
 
     function fetchLineChart(urlParams) {
-        fetch(`http://localhost:8082/api/stocks/dashboard/lineChart?${urlParams}`)
+        fetch(`https://diansproject.redmoss-fac8ac07.australiaeast.azurecontainerapps.io/api/stocks/dashboard/lineChart?${urlParams}`)
             .then(response => response.json())
             .then(data => {
                 const reversedDates = data.dates.reverse();
@@ -285,7 +285,7 @@
     }
 
     function fetchStatisticsData(urlParams) {
-        fetch(`http://localhost:8082/api/stocks/dashboard/statistics?${urlParams}`)
+        fetch(`https://diansproject.redmoss-fac8ac07.australiaeast.azurecontainerapps.io/api/stocks/dashboard/statistics?${urlParams}`)
             .then(response => response.json())
             .then(data => {
                 const statisticsDiv = document.getElementById('statistics');
@@ -331,7 +331,7 @@
     function loadPage() {
         if (isFirst) {
             isFirst = false
-            fetch('http://localhost:8081/api/stocks/companies')
+            fetch('https://diansproject.redmoss-fac8ac07.australiaeast.azurecontainerapps.io/api/stocks/companies')
                 .then(response => response.json())
                 .then(data => {
                     const companies = data;
