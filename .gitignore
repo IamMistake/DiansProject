@@ -7,6 +7,4 @@
 /dataSources/
 /dataSources.local.xml
 
-/Домашна4/DesignAndArchitectureProject/target/
-/Домашна4/Микросервиси/DesignAndArchitectureProjectDataMicroservice/target/
-/Домашна4/Микросервиси/DesignAndArchitectureProjectNewsMicroservice/target/
+target/
